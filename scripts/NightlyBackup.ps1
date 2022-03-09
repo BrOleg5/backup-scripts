@@ -1,6 +1,6 @@
 #requires -version 5.1
 
-Import-Module -FullyQualifiedName "E:\Projects\Scripts\AutoBackupScript\BackupModule.psm1"
+Import-Module -FullyQualifiedName "E:\Projects\Scripts\AutoBackupScript\modules\BackupModule.psm1"
 
 $Sources =  "E:\AutoHotKey Scripts", `
             "E:\Books", `
