@@ -25,15 +25,18 @@ $PCSources =    "E:\AutoHotKey Scripts", `
 
 Backup-Process -Sources $PCSources -Destination $BackupDestination
 
-$AndroidSources =  "phone/DCIM",
-            "sdcard/DCIM/Camera",
-            "sdcard/Music"
+$AndroidSources =   "phone/DCIM",
+                    "sdcard/DCIM/Camera",
+                    "sdcard/Music"
 
 # For run adb daemon in smartphone
 Write-Host 'Connect you smartphone to computer. Press any key to continue...';
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 adb devices
 
-Start-Sleep -Seconds 20
+Start-Sleep -Seconds 10
 
 Backup-Android -Sources $AndroidSources -Destination "$BackupDestination\Android"
+
+Write-Host 'Press any key to exit.';
+$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');

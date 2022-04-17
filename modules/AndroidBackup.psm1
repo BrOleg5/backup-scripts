@@ -43,16 +43,9 @@ function Backup-Android {
         $Destination
     )
 
-    Remove-Item -Path $Destination -Exclude ".log" -Recurse
-
     # Check existing of backup destination path
-    Write-Progress -Activity "Backuping" -Status "Starting ..." -CurrentOperation "Check existing of backup destination path" `
-                   -PercentComplete 0
     if (-not (Test-Path -Path $Destination)) {
         # Create backup destination
-        Write-Progress -Activity "Backuping" -Status "Starting ..." `
-                       -CurrentOperation "Create backup destination" `
-                       -PercentComplete 0
         try {
             New-Item -Path $Destination -ItemType Directory
         }
@@ -60,16 +53,14 @@ function Backup-Android {
             Throw "Backup destination ""$Destination"" were not created!"
         }
     }
+    else {
+        Remove-Item -Path $Destination -Exclude ".log" -Recurse
+    }
 
-    # Create log directory in backup destination
     $PathToLogFile = Join-Path -Path $Destination -ChildPath ".log"
     # Check existing of log directory
-    Write-Progress -Activity "Backuping" -Status "Starting ..." -CurrentOperation "Check existing of log directory" `
-                   -PercentComplete 0
     if (-not (Test-Path -Path $PathToLogFile)) {
         # Create log directory
-        Write-Progress -Activity "Backuping" -Status "Starting ..." -CurrentOperation "Create log directory" `
-                   -PercentComplete 0
         try {
             New-Item -Path $PathToLogFile -ItemType Directory
         }
@@ -77,23 +68,21 @@ function Backup-Android {
             Throw "Log directory ""$PathToLogFile"" were not created!"
         }
     }
-    # Remove existing log file
-    $PathToLogFile = Join-Path -Path $PathToLogFile -ChildPath "log.txt"
-    if (Test-Path -Path $PathToLogFile) {
-        # Remove log file
-        Write-Progress -Activity "Backuping" -Status "Starting ..." -CurrentOperation "Remove existing log file" `
-                       -PercentComplete 0
-        try {           
-            Remove-Item -Path $PathToLogFile
+    else {
+        # Remove existing log file
+        $PathToLogFile = Join-Path -Path $PathToLogFile -ChildPath "log.txt"
+        if (Test-Path -Path $PathToLogFile) {
+            # Remove log file
+            try {           
+                Remove-Item -Path $PathToLogFile
+            }
+            catch {
+                Throw "Log file ""$PathToLogFile"" were not removed!"
+            }
         }
-        catch {
-            Throw "Log file ""$PathToLogFile"" were not removed!"
-        }
+        # Create new log file with unicode encoding
+        Out-File -FilePath $PathToLogFile -Encoding utf8
     }
-    # Create new log file with unicode encoding
-    Write-Progress -Activity "Backuping" -Status "Starting ..." -CurrentOperation "Create new log file with unicode encoding" `
-                   -PercentComplete 0
-    Out-File -FilePath $PathToLogFile -Encoding utf8
 
     # Internal android path
     $InternalStorage = "sdcard"
