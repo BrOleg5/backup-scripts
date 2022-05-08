@@ -37,65 +37,52 @@ function Backup-Process {
         [ValidateScript({Test-Path -Path $_})]
         [string[]]
         $Sources,
-        # Path to backup destination
+        # Paths to backup destination
         [Parameter(Mandatory)]
-        [ValidateScript({Test-Path -Path $_})]
+        [string[]]
+        $Destinations,
+        # Path to log file
+        [Parameter(Mandatory)]
         [string]
-        $Destination
+        $PathToLogFile
     )
 
-    # Check existing of backup destination path
-    if (-not (Test-Path -Path $Destination)) {
-        # Create backup destination
-        try {
-            New-Item -Path $Destination -ItemType Directory
-        }
-        catch {
-            Throw "Backup destination ""$Destination"" were not created!"
-        }
+    # Number of sourses and destinations must be equal
+    if ($Sources.Count -ne $Destinations.Count) {
+        Throw "Number of sourses and destinations must be equal! Sources number: $($Sources.Count); Destination number: $($Destinations.Count)"
     }
 
-    # Create log directory in backup destination
-    $PathToLogFile = Join-Path -Path $Destination -ChildPath ".log"
-    # Check existing of log directory
-    if (-not (Test-Path -Path $PathToLogFile)) {
-        # Create log directory
-        try {
-            New-Item -Path $PathToLogFile -ItemType Directory
+    # Remove existing log file
+    if (Test-Path -Path $PathToLogFile) {
+        # Remove log file
+        try {           
+            Remove-Item -Path $PathToLogFile
         }
         catch {
-            Throw "Log directory ""$PathToLogFile"" were not created!"
+            Throw "Log file ""$PathToLogFile"" were not removed!"
         }
     }
-    else {
-        # Remove existing log file
-        $PathToLogFile = Join-Path -Path $PathToLogFile -ChildPath "log.txt"
-        if (Test-Path -Path $PathToLogFile) {
-            # Remove log file
-            try {           
-                Remove-Item -Path $PathToLogFile
-            }
-            catch {
-                Throw "Log file ""$PathToLogFile"" were not removed!"
-            }
-        }
-        # Create new log file with unicode encoding
-        Out-File -FilePath $PathToLogFile -Encoding utf8
-    }
+    # Create new log file with unicode encoding
+    Out-File -FilePath $PathToLogFile -Encoding utf8
 
     # Number of backup directories
-    [int32] $NumDirs = $Sources.Length
-    # Iterator for progress bar
-    [int32] $i = 0
+    [int32] $NumDirs = $Sources.Count
     # Copy backup
-    foreach ($Item in $Sources) {
-        $ItemName = Split-Path -Path $Item -Leaf
-        $SubDestination = Join-Path -Path $Destination -ChildPath $ItemName
-        Write-Progress -Activity "Backuping" -Status "Progress ..." -CurrentOperation "Copy ""$SubDestination""" `
+    for ($i = 0; $i -lt $NumDirs; $i++) {
+        # Check existing of backup destination path
+        if (-not (Test-Path -Path $Destinations[$i])) {
+            # Create backup destination
+            try {
+                New-Item -Path $Destinations[$i] -ItemType Directory
+            }
+            catch {
+                Throw "Backup destination ""$($Destinations[$i])"" were not created!"
+            }
+        }
+        Write-Progress -Activity "Backuping" -Status "Progress ..." -CurrentOperation "Copy from ""$($Sources[$i])"" to ""$($Destinations[$i])""" `
                        -PercentComplete ($i/$NumDirs*100)
-        $tmp = robocopy $Item $SubDestination /mir /dcopy:DAT /MT:8 /eta /r:5 /w:5 `
+        $tmp = robocopy $Sources[$i] $Destinations[$i] /mir /dcopy:DAT /MT:8 /eta /r:5 /w:5 `
                         /unilog+:$PathToLogFile
-        $i = $i + 1
     }
     Write-Progress -Activity "Backuping" -Completed
 }

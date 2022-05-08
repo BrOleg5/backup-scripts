@@ -32,94 +32,64 @@ function Backup-Android {
     #>
 
     Param(
+        # Device serial number
+        [Parameter(Mandatory)]
+        [string]
+        $SerialNumber,
         # Paths to backup directories
         [Parameter(Mandatory)]
         [string[]]
         $Sources,
-        # Path to backup destination
+        # Paths to backup destinations
         [Parameter(Mandatory)]
-        [ValidateScript({Test-Path -Path $_})]
+        [string[]]
+        $Destinations,
+        # Path to log file
+        [Parameter(Mandatory)]
         [string]
-        $Destination
+        $PathToLogFile
     )
 
-    # Check existing of backup destination path
-    if (-not (Test-Path -Path $Destination)) {
-        # Create backup destination
-        try {
-            New-Item -Path $Destination -ItemType Directory
+    # Number of sourses and destinations must be equal
+    if ($Sources.Count -ne $Destinations.Count) {
+        Throw "Number of sourses and destinations must be equal! Sources number: $($Sources.Count); Destination number: $($Destinations.Count)"
+    }
+
+    # Remove existing log file
+    if (Test-Path -Path $PathToLogFile) {
+        # Remove log file
+        try {           
+            Remove-Item -Path $PathToLogFile
         }
         catch {
-            Throw "Backup destination ""$Destination"" were not created!"
+            Throw "Log file ""$PathToLogFile"" were not removed!"
         }
     }
-    else {
-        Remove-Item -Path $Destination -Exclude ".log" -Recurse
-    }
-
-    $PathToLogFile = Join-Path -Path $Destination -ChildPath ".log"
-    # Check existing of log directory
-    if (-not (Test-Path -Path $PathToLogFile)) {
-        # Create log directory
-        try {
-            New-Item -Path $PathToLogFile -ItemType Directory
-        }
-        catch {
-            Throw "Log directory ""$PathToLogFile"" were not created!"
-        }
-    }
-    else {
-        # Remove existing log file
-        $PathToLogFile = Join-Path -Path $PathToLogFile -ChildPath "log.txt"
-        if (Test-Path -Path $PathToLogFile) {
-            # Remove log file
-            try {           
-                Remove-Item -Path $PathToLogFile
-            }
-            catch {
-                Throw "Log file ""$PathToLogFile"" were not removed!"
-            }
-        }
-        # Create new log file with unicode encoding
-        Out-File -FilePath $PathToLogFile -Encoding utf8
-    }
-
-    # Internal android path
-    $InternalStorage = "sdcard"
-
-    # Define external sd-card storage
-    $StorageFolders = adb shell ls storage
-    $SdCard = "storage", $StorageFolders[0] -join "/"
+    # Create new log file with unicode encoding
+    Out-File -FilePath $PathToLogFile -Encoding utf8
 
     # Number of backup directories
-    [int32] $NumDirs = $Sources.Length
-    # Iterator for progress bar
-    [int32] $i = 0
+    [int32] $NumDirs = $Sources.Count
     # Copy backup
-    foreach ($Item in $Sources) {
-        $SplitedPath = $Item -split "/"
-        if ($SplitedPath[0] -eq "phone") {
-            $SplitedPath[0] = $InternalStorage
-        }
-        elseif ($SplitedPath[0] -eq "sdcard") {
-            $SplitedPath[0] = $SdCard
-        }
-        $PreprocessPath = $SplitedPath -join "/"
-        Write-Progress -Activity "Backuping" -Status "Progress ..." -CurrentOperation "Copy ""$PreprocessPath""" `
+    for ($i = 0; $i -lt $NumDirs; $i++) {
+        Write-Progress -Activity "Backuping" -Status "Progress ..." -CurrentOperation "Copy from ""$($Sources[$i])"" to ""$($Destinations[$i])""" `
                        -PercentComplete ($i/$NumDirs*100)
-        $ItemName = Split-Path -Path $PreprocessPath -Parent
-        $SubDestination = Join-Path -Path $Destination -ChildPath $ItemName
-        if (-not (Test-Path -Path $SubDestination)) {
-            try {           
-                New-Item -Path $SubDestination -ItemType Directory
+          # Check existing of backup destination path
+        if (-not (Test-Path -Path $Destinations[$i])) {
+            # Create backup destination
+            try {
+                New-Item -Path $Destinations[$i] -ItemType Directory
             }
             catch {
-                Throw "Directory ""$SubDestination"" were not created!"
+                Throw "Backup destination ""$($Destinations[$i])"" were not created!"
             }
         }
-        $log_message = adb pull $PreprocessPath $SubDestination
+        # Clear detination folder
+        else {
+            Remove-Item -Path $Destinations[$i] -Recurse
+        }
+        $log_message = adb -s $SerialNumber pull $Sources[$i] $Destinations[$i]
         $log_message | Out-File -FilePath $PathToLogFile -Encoding utf8 -Append
-        $i = $i + 1
     }
     Write-Progress -Activity "Backuping" -Completed
 }
