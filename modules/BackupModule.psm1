@@ -65,10 +65,10 @@ function Backup-Process {
     # Create new log file with unicode encoding
     Out-File -FilePath $PathToLogFile -Encoding utf8
 
-    # Number of backup directories
-    [int32] $NumDirs = $Sources.Count
+    # Number of backup items (files, directories)
+    [int32] $NumItem = $Sources.Count
     # Copy backup
-    for ($i = 0; $i -lt $NumDirs; $i++) {
+    for ($i = 0; $i -lt $NumItem; $i++) {
         # Check existing of backup destination path
         if (-not (Test-Path -Path $Destinations[$i])) {
             # Create backup destination
@@ -80,9 +80,19 @@ function Backup-Process {
             }
         }
         Write-Progress -Activity "Backuping" -Status "Progress ..." -CurrentOperation "Copy from ""$($Sources[$i])"" to ""$($Destinations[$i])""" `
-                       -PercentComplete ($i/$NumDirs*100)
-        $tmp = robocopy $Sources[$i] $Destinations[$i] /mir /dcopy:DAT /MT:8 /eta /r:5 /w:5 `
-                        /unilog+:$PathToLogFile
+                       -PercentComplete ($i/$NumItem*100)
+        # Check that path refers to directory
+        if ((Get-Item -Path $Sources[$i]).PSisContainer) {
+            $tmp = robocopy $Sources[$i] $Destinations[$i] /mir /dcopy:DAT /MT:8 /eta /r:5 /w:5 `
+                            /unilog+:$PathToLogFile   
+        }
+        # else path refers to file
+        else {
+            $FilePath = Split-Path -Path $Sources[$i] -Parent
+            $FileName = Split-Path -Path $Sources[$i] -Leaf -Resolve
+            $tmp = robocopy $FilePath $Destinations[$i] $FileName /mir /dcopy:DAT /MT:8 /eta /r:5 /w:5 `
+                            /unilog+:$PathToLogFile
+        }
     }
     Write-Progress -Activity "Backuping" -Completed
 }
