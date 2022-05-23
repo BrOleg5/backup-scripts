@@ -79,7 +79,7 @@ Write-Host "Connection successful."
 Backup-Android -SerialNumber $SerialNumber -Sources $AndroidSources -Destinations $ADestinations `
                -PathToLogFile "$BackupDestination\.log\log android.txt"
 
-Write-Host "Backup Android device is successfil. Stop adb server."
+Write-Host "Backup Android device is successful. Stop adb server."
 adb kill-server
 
 $message = "Press any key to exit."
