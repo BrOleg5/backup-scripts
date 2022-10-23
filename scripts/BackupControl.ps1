@@ -28,7 +28,8 @@ $PCSources = "E:\AutoHotKey Scripts",
              "C:\Users\Oleg\Documents\KiCad",
              "C:\Users\Oleg\AppData\Roaming\Code\User\hsnips",
              "C:\Users\Oleg\AppData\Roaming\Code\User\keybindings.json",
-             "C:\Users\Oleg\AppData\Roaming\Code\User\settings.json"
+             "C:\Users\Oleg\AppData\Roaming\Code\User\settings.json",
+             "C:\Users\Oleg\texmf\tex\latex"
 
 $PCDestination = "$BackupDestination\AutoHotKey Scripts",
                  "$BackupDestination\Books",
@@ -51,7 +52,8 @@ $PCDestination = "$BackupDestination\AutoHotKey Scripts",
                  "$BackupDestination\Users\Oleg\Documents\KiCad",
                  "$BackupDestination\Users\Oleg\AppData\Roaming\Code\User\hsnips",
                  "$BackupDestination\Users\Oleg\AppData\Roaming\Code\User",
-                 "$BackupDestination\Users\Oleg\AppData\Roaming\Code\User"
+                 "$BackupDestination\Users\Oleg\AppData\Roaming\Code\User",
+                 "$BackupDestination\Users\Oleg\texmf\tex\latex"
                 
 Backup-Process -Sources $PCSources -Destinations $PCDestination -PathToLogFile "$BackupDestination\.log\log pc.txt"
 
