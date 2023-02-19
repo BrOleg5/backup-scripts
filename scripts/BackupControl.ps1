@@ -38,6 +38,7 @@ $PCSourceDestination.AddItem("C:\Users\Oleg\AppData\Roaming\Code\User\hsnips",  
 $PCSourceDestination.AddItem("C:\Users\Oleg\AppData\Roaming\Code\User\keybindings.json",    "Users\Oleg\AppData\Roaming\Code\User")
 $PCSourceDestination.AddItem("C:\Users\Oleg\AppData\Roaming\Code\User\settings.json",       "Users\Oleg\AppData\Roaming\Code\User")
 $PCSourceDestination.AddItem("C:\Users\Oleg\texmf\tex\latex",                               "Users\Oleg\texmf\tex\latex")
+$PCSourceDestination.AddItem("C:\Users\Oleg\Zotero",                                        "Users\Oleg\Zotero")
 
 $BackupDestinations = "F:\Backup", "H:\Backup"
 

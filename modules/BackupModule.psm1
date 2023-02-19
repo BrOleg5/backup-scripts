@@ -6,42 +6,34 @@ $ErrorActionPreference = "Stop"
 function Backup-Process {
     <#
         .SYNOPSIS
-
         Automatic copy backup.
 
         .DESCRIPTION
+        Function copy directories from Sources to Destinations.
 
-        Script archives required directories and saves directory hierarchy.
-        Every archive is encrypted with generated password.
-        All passwords are saved in text file (txt).
-        Encrypted archives and text file copy to every backup destination.
+        .PARAMETER Sources
+        Specify paths to directories that require to backup.
 
-        .PARAMETER InputPaths
-        Specifies paths that requires to backup.
+        .PARAMETER Destinations
+        Specify destination backup paths.
 
-        .PARAMETER OutputPaths
-        Specifies destinations backup paths.
-
-        .PARAMETER WorkingDirectory
-        Specifies working directory. It is temporary store of backup.
-
-        .PARAMETER ImportPath
-        Specifies path to PasswordGenerators module.
+        .PARAMETER PathToLogFile
+        Specify path to backup log file.
 
         .EXAMPLE
+        $src = "D:/folder 1/subfolder 2", "C:/Users/user/some folder"
+        $dest = "E:/Backup/folder 1/subfolder 2", "E:/Backup/Users/user/some folder"
+        Backup-Process -SerialNumber "86fbca53" -Sources $src -Destinations $dest -PathToLogFile "E:\Backup\.log\log.txt"
     #>
 
     Param(
-        # Paths to backup directories
         [Parameter(Mandatory)]
         [ValidateScript({Test-Path -Path $_})]
         [string[]]
         $Sources,
-        # Paths to backup destination
         [Parameter(Mandatory)]
         [string[]]
         $Destinations,
-        # Path to log file
         [Parameter(Mandatory)]
         [string]
         $PathToLogFile

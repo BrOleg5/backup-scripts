@@ -6,45 +6,42 @@ $ErrorActionPreference = "Stop"
 function Backup-Android {
     <#
         .SYNOPSIS
-
-        Automatic copy backup.
+        Backup android directories using Android Debug Bridge (adb).
 
         .DESCRIPTION
+        Function copy directories from Android Sources to computer Destinations.
+        Both internal and external Android storage can be backuped.
 
-        Script archives required directories and saves directory hierarchy.
-        Every archive is encrypted with generated password.
-        All passwords are saved in text file (txt).
-        Encrypted archives and text file copy to every backup destination.
+        .PARAMETER SerialNumber
+        Serial number of Android device.
 
-        .PARAMETER InputPaths
-        Specifies paths that requires to backup.
+        .PARAMETER Sources
+        Specify paths to directories in Android device that require to backup.
 
-        .PARAMETER OutputPaths
-        Specifies destinations backup paths.
+        .PARAMETER Destinations
+        Specify destination backup paths.
 
-        .PARAMETER WorkingDirectory
-        Specifies working directory. It is temporary store of backup.
-
-        .PARAMETER ImportPath
-        Specifies path to PasswordGenerators module.
+        .PARAMETER PathToLogFile
+        Specify path to backup log file
 
         .EXAMPLE
+        $Phone = "sdcard"
+        $SDCard = "storage/6H47-8632"
+        $src = "$Phone/folder 1/subfolder 2", "$SDCard/Users/user/some folder"
+        $dest = "E:/Backup/folder 1/subfolder 2", "E:/Backup/Users/user/some folder"
+        Backup-Android -Sources $src -Destinations $dest -PathToLogFile "E:\Backup\.log\log.txt"
     #>
 
     Param(
-        # Device serial number
         [Parameter(Mandatory)]
         [string]
         $SerialNumber,
-        # Paths to backup directories
         [Parameter(Mandatory)]
         [string[]]
         $Sources,
-        # Paths to backup destinations
         [Parameter(Mandatory)]
         [string[]]
         $Destinations,
-        # Path to log file
         [Parameter(Mandatory)]
         [string]
         $PathToLogFile
